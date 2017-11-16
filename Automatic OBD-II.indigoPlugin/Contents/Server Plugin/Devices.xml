@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<Devices>
+	<Device type="custom" id="myAutomaticOBDCustomType">
+		<Name>Automatic OBD-II</Name>
+		<ConfigUI>
+			<Field id="instructionsDeveloperAccountLabel" type="label">
+				<Label>To configure the Automatic OBD-II plugin, you first need to register for a free Automatic developer account. You can do that at https://developer.automatic.com. Once you have registered, enter in your OAuth Client ID and OAuth Secret here:</Label>
+			</Field>
+
+			<Field id="vehicle" type="menu">
+				<Label>Vehicle</Label>
+				<List class="self" filter="" method="getVehiclesList" dynamicReload="true"/>
+			</Field>
+		</ConfigUI>
+		<States>
+			<State id="user" readonly="YES">
+				<ValueType>String</ValueType>
+				<TriggerLabel>user</TriggerLabel>
+				<ControlPageLabel>user</ControlPageLabel>
+			</State>
+			<State id="vehicle" readonly="YES">
+				<ValueType>String</ValueType>
+				<TriggerLabel>vehicle</TriggerLabel>
+				<ControlPageLabel>vehicle</ControlPageLabel>
+			</State>
+			<State id="trip" readonly="YES">
+				<ValueType>String</ValueType>
+				<TriggerLabel>trip</TriggerLabel>
+				<ControlPageLabel>trip</ControlPageLabel>
+			</State>
+			<State id="tag" readonly="YES">
+				<ValueType>String</ValueType>
+				<TriggerLabel>tag</TriggerLabel>
+				<ControlPageLabel>tag</ControlPageLabel>
+			</State>
+			<State id="location" readonly="YES">
+				<ValueType>String</ValueType>
+				<TriggerLabel>location</TriggerLabel>
+				<ControlPageLabel>location</ControlPageLabel>
+			</State>
+			<State id="ETA" readonly="YES">
+				<ValueType>String</ValueType>
+				<TriggerLabel>ETA</TriggerLabel>
+				<ControlPageLabel>ETA</ControlPageLabel>
+			</State>
+			<State id="previousMilesFromHome" readonly="YES">
+				<ValueType>String</ValueType>
+				<TriggerLabel>previousMilesFromHome</TriggerLabel>
+				<ControlPageLabel>previousMilesFromHome</ControlPageLabel>
+			</State>
+			<State id="currentMilesFromHome" readonly="YES">
+				<ValueType>String</ValueType>
+				<TriggerLabel>currentMilesFromHome</TriggerLabel>
+				<ControlPageLabel>currentMilesFromHome</ControlPageLabel>
+			</State>
+		</States>
+	</Device>
+</Devices>

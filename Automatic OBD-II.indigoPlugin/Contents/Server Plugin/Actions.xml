@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<Actions>
+	<Action id="refreshStates" deviceFilter="self">
+		<Name>Refresh States</Name>
+		<CallbackMethod>doRefreshStatesFromAPI</CallbackMethod>
+	</Action>
+</Actions>

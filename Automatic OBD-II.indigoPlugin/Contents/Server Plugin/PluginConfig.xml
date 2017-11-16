@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+
+<PluginConfig>
+
+	<Field id="instructionsDeveloperAccountLabel" type="label">
+		<Label>To configure the Automatic OBD-II plugin, you first need to register for a free Automatic developer account. You can do that at https://developer.automatic.com. Once you have registered, enter in your OAuth Client ID and OAuth Secret here:</Label>
+	</Field>
+
+	<Field id="clientId" type="textfield" defaultValue="">
+		<Label>OAuth Client ID:</Label>
+	</Field>
+
+	<Field id="clientSecret" type="textfield" defaultValue="">
+		<Label>OAuth Secret:</Label>
+	</Field>
+
+	<Field id="getAuthorizationButton" type="button" tooltip="Click this button after you have filled in your OAuth Client ID and OAuth Secret:">
+		<Label>Click to Authorize</Label>
+		<Title>Go </Title>
+		<CallbackMethod>getAuthorization</CallbackMethod>
+	</Field>
+	
+	<Field id="instructionsAuthorizationLabel" type="label">
+		<Label>After you log on to Automatic with your account and authorize access, you will be redirected to another page. Enter the full callback URL below. It should start with whatever you configured on your Developer page (http://localhost/OAuthRedirectURL).</Label>
+	</Field>
+	
+	<Field id="callbackURL" type="textfield" defaultValue="">
+		<Label>Callback URL:</Label>
+	</Field>
+	
+	<Field id="accessTokenFail" type="label" visibleBindingId="accessTokenFailCheckbox" visibleBindingValue="true">
+		<Label>There was a problem getting your access token. Please click the question mark icon again and carefully capture the Callback URL again.</Label>
+	</Field>
+	
+	<Field id="accessTokenFailCheckbox" hidden="true" type="checkbox" defaultValue="false"></Field>
+	
+	<Field id="getAccessTokenButton" type="button" tooltip="Click this button after you have filled in the Callback URL">
+		<Label>Click to obtain Access Token</Label>
+		<Title>Go </Title>
+		<CallbackMethod>getAccessToken</CallbackMethod>
+	</Field>
+
+	<Field id="accessTokenJson" type="textfield" defaultValue="" hidden="true">
+		<Label>accessTokenJson:</Label>
+	</Field>
+
+	<Field id="accessTokenSaved" type="label" visibleBindingId="accessTokenFailCheckbox" visibleBindingValue="success">
+		<Label>Access token was saved successfully!</Label>
+	</Field>
+	
+	<Field id="whitespace" type="label">
+		<Label>				</Label>
+	</Field>
+	<Field id="whitespace2" type="label">
+		<Label>				</Label>
+	</Field>
+	<Field id="whitespace3" type="label">
+		<Label>				</Label>
+	</Field>
+	<Field id="whitespace4" type="label">
+		<Label>				</Label>
+	</Field>
+	<Field id="whitespace5" type="label">
+		<Label>				</Label>
+	</Field>
+	<Field id="whitespace6" type="label">
+		<Label>				</Label>
+	</Field>
+	
+	<Field id="instructionsGoogleMapsAPIKeyLabel" type="label">
+		<Label>To be able to get distance and travel time to home, you first need to register for a free Google developers account. You can do that at https://developer.google.com. You need to get access to the Geocoding and the Distance Matrix APIs. Once you have registered, enter in your Google Maps API Key here:</Label>
+	</Field>
+	
+	<Field id="googleMapsAPIKey" type="textfield" defaultValue="">
+		<Label>Google Maps API Key:</Label>
+	</Field>
+
+	<Field id="homeAddress" type="textfield" defaultValue="123 Any St Philadelphia, PA 19380">
+		<Label>Home Address:</Label>
+	</Field>
+	
+	<Field id="debugLogging" type="checkbox" defaultValue="false">
+		<Label>Enable Debug Logging:</Label>
+	</Field>
+	
+	
+</PluginConfig>
+

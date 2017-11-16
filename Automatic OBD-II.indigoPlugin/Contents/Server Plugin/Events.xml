@@ -1,0 +1,108 @@
+<?xml version="1.0"?>
+
+<Events>
+    <Event id="trip_finished">
+        <Name>Trip Finished</Name>
+        <ConfigUI>
+			<Field id="vehicle" type="menu">
+				<Label>Vehicle</Label>
+				<List class="self" filter="" method="getVehiclesList" dynamicReload="true"/>
+			</Field>
+		</ConfigUI>
+    </Event>
+    <Event id="ignition_on">
+        <Name>Ignition On</Name>
+        <ConfigUI>
+			<Field id="vehicle" type="menu">
+				<Label>Vehicle</Label>
+				<List class="self" filter="" method="getVehiclesList" dynamicReload="true"/>
+			</Field>
+		</ConfigUI>
+    </Event>
+    <Event id="ignition_off">
+        <Name>Ignition Off</Name>
+        <ConfigUI>
+			<Field id="vehicle" type="menu">
+				<Label>Vehicle</Label>
+				<List class="self" filter="" method="getVehiclesList" dynamicReload="true"/>
+			</Field>
+		</ConfigUI>
+    </Event>
+    <Event id="notification_speeding">
+        <Name>Speeding</Name>
+        <ConfigUI>
+			<Field id="vehicle" type="menu">
+				<Label>Vehicle</Label>
+				<List class="self" filter="" method="getVehiclesList" dynamicReload="true"/>
+			</Field>
+		</ConfigUI>
+    </Event>
+    <Event id="notification_hard_break">
+        <Name>Hard Break</Name>
+        <ConfigUI>
+			<Field id="vehicle" type="menu">
+				<Label>Vehicle</Label>
+				<List class="self" filter="" method="getVehiclesList" dynamicReload="true"/>
+			</Field>
+		</ConfigUI>
+    </Event>
+    <Event id="notification_hard_accel">
+        <Name>Hard Acceleration</Name>
+        <ConfigUI>
+			<Field id="vehicle" type="menu">
+				<Label>Vehicle</Label>
+				<List class="self" filter="" method="getVehiclesList" dynamicReload="true"/>
+			</Field>
+		</ConfigUI>
+    </Event>
+    <Event id="mil_on">
+        <Name>Check Engine Light On</Name>
+        <ConfigUI>
+			<Field id="vehicle" type="menu">
+				<Label>Vehicle</Label>
+				<List class="self" filter="" method="getVehiclesList" dynamicReload="true"/>
+			</Field>
+		</ConfigUI>
+    </Event>
+    <Event id="mil_off">
+        <Name>Check Engine Light Off</Name>
+        <ConfigUI>
+			<Field id="vehicle" type="menu">
+				<Label>Vehicle</Label>
+				<List class="self" filter="" method="getVehiclesList" dynamicReload="true"/>
+			</Field>
+		</ConfigUI>
+    </Event>
+    <Event id="location_updated">
+        <Name>Location Updated</Name>
+        <ConfigUI>
+			<Field id="vehicle" type="menu">
+				<Label>Vehicle</Label>
+				<List class="self" filter="" method="getVehiclesList" dynamicReload="true"/>
+			</Field>
+		</ConfigUI>
+    </Event>
+    <Event id="approaching_home">
+        <Name>Approaching Home</Name>
+        <ConfigUI>
+			<Field id="vehicle" type="menu">
+				<Label>Vehicle</Label>
+				<List class="self" filter="" method="getVehiclesList" dynamicReload="true"/>
+			</Field>
+		</ConfigUI>
+    </Event>
+    <!--
+    <Event id="miles_to_home">
+        <Name>Miles to Home</Name>
+        <ConfigUI>
+			<Field id="vehicle" type="menu">
+				<Label>Vehicle</Label>
+				<List class="self" filter="" method="getVehiclesList" dynamicReload="true"/>
+			</Field>
+			<Field id="milesToHome" type="textfield" defaultValue="3">
+				<Label>Miles:</Label>
+			</Field>
+		</ConfigUI>
+    </Event>
+    -->
+</Events>
