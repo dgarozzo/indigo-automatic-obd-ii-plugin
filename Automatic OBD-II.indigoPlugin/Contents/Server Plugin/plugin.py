@@ -54,7 +54,10 @@ import threading
 
 from socketIO_client import SocketIO
 
-    
+import requests
+
+from requests.exceptions import ConnectionError
+
     
 # Note the "indigo" module is automatically imported and made available inside
 # our global name space by the host process.
@@ -415,25 +418,17 @@ class Plugin(indigo.PluginBase):
 			self.debugLog( "getETA for %s" % vehicleId )
 			
 			googleMapsApiKey = self.pluginPrefs["googleMapsAPIKey"]
-		
-			conn = httplib.HTTPSConnection("maps.googleapis.com", timeout=2)
-
-			target = "/maps/api/distancematrix/json"
-
-			params = urllib.urlencode({'origins': str(self.event[vehicleId]['location']['lat'])+','+str(self.event[vehicleId]['location']['lon']), 'destinations': self.pluginPrefs["homeAddress"], 'key': googleMapsApiKey, 'units': 'imperial'})
-
-			if params != "":
-				params = "?" + params
-
-			self.debugLog( "https://maps.googleapis.com%s%s" % (target, params) )
-
-			conn.request("GET", "/%s%s" % (target, params), None)
-
-			response = conn.getresponse()
-
-			data = response.read()
 			
-			json_data = json.loads(data)
+			##self.debugLog( googleMapsApiKey )
+
+			theUrl = 'https://maps.googleapis.com/maps/api/distancematrix/json?origins='+str(self.event[vehicleId]['location']['lat'])+','+str(self.event[vehicleId]['location']['lon'])+'&' + urllib.urlencode({'destinations':self.pluginPrefs["homeAddress"]}) + '&key='+googleMapsApiKey+'&units=imperial'
+			self.debugLog( theUrl )
+			
+			response = requests.get(theUrl, timeout=2)
+			
+			self.debugLog( response.text )
+			
+			json_data = json.loads(response.text)
 		
 			text = json_data['rows'][0]['elements'][0]['duration']['text']
 			seconds = json_data['rows'][0]['elements'][0]['duration']['value']
@@ -482,25 +477,15 @@ class Plugin(indigo.PluginBase):
 	
 			#self.debugLog( googleMapsApiKey )
 			
-			conn = httplib.HTTPSConnection("maps.googleapis.com", timeout=2)
+			apiURL = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='+str(self.event[vehicleId]['location']['lat'])+','+str(self.event[vehicleId]['location']['lon'])+'&key='+googleMapsApiKey
+			##self.debugLog( apiURL )
+						
+			response = requests.get(apiURL, timeout=2)
 
-			target = "/maps/api/geocode/json"
+			##self.debugLog( response.text )
 
-			params = urllib.urlencode({'latlng': str(self.event[vehicleId]['location']['lat'])+','+str(self.event[vehicleId]['location']['lon']), 'key': googleMapsApiKey})
+			json_data = json.loads(response.text)
 
-			if params != "":
-				params = "?" + params
-
-			self.debugLog( "https://maps.googleapis.com%s%s" % (target, params) )
-
-			conn.request("GET", "/%s%s" % (target, params), None)
-			
-			response = conn.getresponse()
-
-			data = response.read()
-			
-			json_data = json.loads(data)
-	
 			for component in json_data['results'][0]['address_components']:
 				self.debugLog( "for loop address_components" )
 				if component['types'][0] == 'route':
@@ -619,19 +604,18 @@ class Plugin(indigo.PluginBase):
 			self.debugLog("Bearer %s" % jsonResponse["access_token"])
 	
 			params = urllib.urlencode(paramsList)
-			headersData = {"Content-type": "application/x-www-form-urlencoded", "Authorization": "Bearer %s" % jsonResponse["access_token"]}
-			conn = httplib.HTTPSConnection("api.automatic.com", timeout=2)
 
 			if params != "":
 				params = "?" + params
-			conn.request("GET", "/%s/%s" % (target, params), None, headersData)
-			response = conn.getresponse()
 
-			data = response.read()
+			headersData = {"Content-type": "application/x-www-form-urlencoded", "Authorization": "Bearer %s" % jsonResponse["access_token"]}
+
+			r = requests.get('https://api.automatic.com/' + target + '/' + params, timeout=2, headers=headersData)
+			data = r.text
+
 		except Exception, e:
 			indigo.server.log("FYI - Exception caught _requestData: " + str(e))
 
-		conn.close()
 		return data
 
 	def _requestVehicle(self, vehicleId):
@@ -668,7 +652,12 @@ class Plugin(indigo.PluginBase):
 		
 		self.debugLog(u"getAuthorization")
 		
-		authorizationURL = "https://accounts.automatic.com/oauth/authorize/?client_id=%s&response_type=code&scope=scope:current_location%%20scope:public%%20scope:user:profile%%20scope:location%%20scope:vehicle:profile%%20scope:vehicle:events%%20scope:trip%%20scope:behavior" % valuesDict["clientId"]
+		currentLocation = ""
+		if valuesDict["automaticLocationApproved"]:
+			currentLocation = "scope:current_location%20"
+		self.pluginPrefs["automaticLocationApproved"] = valuesDict["automaticLocationApproved"]
+		
+		authorizationURL = "https://accounts.automatic.com/oauth/authorize/?client_id=%s&response_type=code&scope=%sscope:public%%20scope:user:profile%%20scope:location%%20scope:vehicle:profile%%20scope:vehicle:events%%20scope:trip%%20scope:behavior" % (valuesDict["clientId"], currentLocation)
 		self.debugLog( authorizationURL )
 		self.browserOpen( authorizationURL )
 		
@@ -683,19 +672,15 @@ class Plugin(indigo.PluginBase):
 			else:
 				codeType = "code"
 				postURL = "/oauth/access_token"
-			params = urllib.urlencode({'client_id': clientId, 'client_secret': clientSecret, codeType: code, 'grant_type': grantType})
-			headersData = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
-			conn = httplib.HTTPSConnection("accounts.automatic.com", timeout=2)
-			indigo.server.log(params)
-			conn.request("POST", postURL, params, headersData)
-			response = conn.getresponse()
-			#indigo.server.log(response.status)
-			self.debugLog(response.reason)
-			data = response.read()
+
+			headersData = {"Content-type": "application/x-www-form-urlencoded", "Accept": "*/*", "User-Agent": "AutomaticOBDPlugin"}
+			r = requests.post('https://accounts.automatic.com' + postURL, timeout=2, headers=headersData, data={'client_id': clientId, 'client_secret': clientSecret, codeType: code, 'grant_type': grantType})
+			data = r.text
+
 			indigo.server.log(data)
 		except Exception, e:
 			indigo.server.log("FYI - Exception caught _requestAccessToken: " + str(e))
-		conn.close()
+
 		return data
 		
 	def _saveAccessToken(self, data):
