@@ -133,6 +133,20 @@ class Plugin(indigo.PluginBase):
 
 					jsonResponse = json.loads(vehicleJson)
 					self._addVehicleToCars( jsonResponse )
+				
+					self.debugLog( "getting ETA" )
+					ETA = self.getETA(localPropsCopy["vehicle"], jsonResponse['latest_location'])
+
+					self.debugLog( "getting location" )
+					location = self.getLocation(localPropsCopy["vehicle"], jsonResponse['latest_location'])
+				
+					if "ETA" in dev.states:
+						if dev.states["ETA"] != ETA:
+							dev.updateStateOnServer( 'ETA', value=ETA )
+	
+					if "location" in dev.states:
+						if dev.states["location"] != location:
+							dev.updateStateOnServer( 'location', value=location )
 					
 			except Exception, e:
 				indigo.server.log("FYI - Exception caught getting vehicle info: " + str(e))
@@ -336,10 +350,10 @@ class Plugin(indigo.PluginBase):
 
 		# Google Location Geocode and Distance Matrix ETA
 		self.debugLog( "getting ETA" )
-		ETA = self.getETA(self.vehicleId)
+		ETA = self.getETA(self.vehicleId, self.event[self.vehicleId]['location'])
 
 		self.debugLog( "getting location" )
-		location = self.getLocation(self.vehicleId)
+		location = self.getLocation(self.vehicleId, self.event[self.vehicleId]['location'])
 
 		self.debugLog( "updating miles" )
 		
@@ -406,7 +420,7 @@ class Plugin(indigo.PluginBase):
 	"""
 		Get ETA via Google Distance Matrix ****************************************************
 	"""
-	def getETA(self, vehicleId):
+	def getETA(self, vehicleId, locationJson):
 
 		# Any globals that will be modified must be called out
 		global event
@@ -421,7 +435,7 @@ class Plugin(indigo.PluginBase):
 			
 			##self.debugLog( googleMapsApiKey )
 
-			theUrl = 'https://maps.googleapis.com/maps/api/distancematrix/json?origins='+str(self.event[vehicleId]['location']['lat'])+','+str(self.event[vehicleId]['location']['lon'])+'&' + urllib.urlencode({'destinations':self.pluginPrefs["homeAddress"]}) + '&key='+googleMapsApiKey+'&units=imperial'
+			theUrl = 'https://maps.googleapis.com/maps/api/distancematrix/json?origins='+str(locationJson['lat'])+','+str(locationJson['lon'])+'&' + urllib.urlencode({'destinations':self.pluginPrefs["homeAddress"]}) + '&key='+googleMapsApiKey+'&units=imperial'
 			self.debugLog( theUrl )
 			
 			response = requests.get(theUrl, timeout=2)
@@ -433,7 +447,10 @@ class Plugin(indigo.PluginBase):
 			text = json_data['rows'][0]['elements'][0]['duration']['text']
 			seconds = json_data['rows'][0]['elements'][0]['duration']['value']
 		
-			timestamp = datetime.datetime.strptime(self.event[vehicleId]['location']['created_at'], '%Y-%m-%dT%H:%M:%S.%fZ')
+			if '.' in str(locationJson['created_at']):
+				timestamp = datetime.datetime.strptime(str(locationJson['created_at']), '%Y-%m-%dT%H:%M:%S.%fZ')
+			else:
+				timestamp = datetime.datetime.strptime(str(locationJson['created_at']), '%Y-%m-%dT%H:%M:%SZ')
 			timestamp = timestamp - datetime.timedelta(hours=4)
 		
 			# Give ETA as event timestamp plus google travel time to home
@@ -443,24 +460,25 @@ class Plugin(indigo.PluginBase):
 			
 			# Record last ETA Distance and this ETA Distance to help determine if we'll notify en route
 			distance = str(json_data['rows'][0]['elements'][0]['distance']['text']).split()
+			
+			self.debugLog( distance )
+			
 			if distance[1] == 'mi':
 				self.car[vehicleId]['currentMilesFromHome'] = float(distance[0]);
 			else:
 				self.car[vehicleId]['currentMilesFromHome'] = 0.0;
-		
+			
 			self.debugLog( text + " / " + str(self.car[vehicleId]['currentMilesFromHome']) + " miles from home, ETA " + ETA.strftime("%I:%M %p") )
 		
-			conn.close()
 			return text + " / " + str(self.car[vehicleId]['currentMilesFromHome']) + " miles from home, ETA " + ETA.strftime("%I:%M %p")
 		except Exception, e:
-			conn.close()
 			indigo.server.log('Location unknown, distance matrix calculation failed: ' + str(e))
 			return 'unknown ETA'
 
 	"""
 		Google Geocode Location ****************************************************
 	"""
-	def getLocation(self, vehicleId):
+	def getLocation(self, vehicleId, locationJson):
 
 		# Any globals that will be modified must be called out
 		global event
@@ -477,7 +495,7 @@ class Plugin(indigo.PluginBase):
 	
 			#self.debugLog( googleMapsApiKey )
 			
-			apiURL = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='+str(self.event[vehicleId]['location']['lat'])+','+str(self.event[vehicleId]['location']['lon'])+'&key='+googleMapsApiKey
+			apiURL = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='+str(locationJson['lat'])+','+str(locationJson['lon'])+'&key='+googleMapsApiKey
 			##self.debugLog( apiURL )
 						
 			response = requests.get(apiURL, timeout=2)
@@ -496,8 +514,6 @@ class Plugin(indigo.PluginBase):
 			indigo.server.log('Location unknown, geocode failed: ' + str(e))
 			pass
 	
-		conn.close()
-
 		self.debugLog( "getLocation: %s" % text )
 		return text
 
@@ -546,8 +562,8 @@ class Plugin(indigo.PluginBase):
 					if not dev.enabled or not dev.configured:
 						indigo.server.log(u"runConcurrentThread:dev not enabled or configured")
 						continue
-
-					#self._refreshStatesFromAPI(dev, False)
+					if not self.pluginPrefs["automaticLocationApproved"]:
+						self._refreshStatesFromAPI(dev, False)
 				self.sleep(60)
 		except self.StopThread:
 			pass	# Optionally catch the StopThread exception and do any needed cleanup.
