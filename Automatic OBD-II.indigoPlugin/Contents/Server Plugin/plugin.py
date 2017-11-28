@@ -42,6 +42,9 @@ import indigo
 import os
 import random
 import sys
+
+sys.path.insert(1, './pyModules')
+
 import time
 import datetime
 

@@ -1,0 +1,6 @@
+import sys; sys.__plen = len(sys.path)
+./Cheetah-2.4.4-py2.7.egg
+./Markdown-2.3.1-py2.7.egg
+./pip-9.0.1-py2.7.egg
+/Library/Python/2.7/site-packages
+import sys; new=sys.path[sys.__plen:]; del sys.path[sys.__plen:]; p=getattr(sys,'__egginsert',0); sys.path[p:p]=new; sys.__egginsert = p+len(new)
