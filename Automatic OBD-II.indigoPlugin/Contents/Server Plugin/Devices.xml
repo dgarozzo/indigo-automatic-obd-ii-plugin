@@ -53,6 +53,21 @@
 				<TriggerLabel>currentMilesFromHome</TriggerLabel>
 				<ControlPageLabel>currentMilesFromHome</ControlPageLabel>
 			</State>
+			<State id="fuelLevelPercent" readonly="YES">
+				<ValueType>String</ValueType>
+				<TriggerLabel>fuelLevelPercent</TriggerLabel>
+				<ControlPageLabel>fuelLevelPercent</ControlPageLabel>
+			</State>
+			<State id="batteryVoltage" readonly="YES">
+				<ValueType>String</ValueType>
+				<TriggerLabel>batteryVoltage</TriggerLabel>
+				<ControlPageLabel>batteryVoltage</ControlPageLabel>
+			</State>
+			<State id="activeDtcs" readonly="YES">
+				<ValueType>String</ValueType>
+				<TriggerLabel>activeDtcs</TriggerLabel>
+				<ControlPageLabel>activeDtcs</ControlPageLabel>
+			</State>
 		</States>
 	</Device>
 </Devices>

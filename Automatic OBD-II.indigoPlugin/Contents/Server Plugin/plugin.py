@@ -7,7 +7,7 @@
 
 # MIT License
 
-# Copyright (c) 2017 David Garozzo
+# Copyright (c) 2018 David Garozzo
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -109,6 +109,9 @@ class Plugin(indigo.PluginBase):
 				self.car[ vehicleJson['id'] ][ 'name' ] = "%s %s %s %s" % ( vehicleJson['year'], vehicleJson['make'], vehicleJson['model'], vehicleJson['submodel'] )
 			self.car[ vehicleJson['id'] ]['previousMilesFromHome'] = 0.0
 			self.car[ vehicleJson['id'] ]['currentMilesFromHome'] = 0.0
+			self.car[ vehicleJson['id'] ]['fuelLevelPercent'] = vehicleJson['fuel_level_percent']
+			self.car[ vehicleJson['id'] ]['batteryVoltage'] = vehicleJson['battery_voltage']
+			self.car[ vehicleJson['id'] ]['activeDtcs'] = vehicleJson['active_dtcs']
 	
 
 	########################################
@@ -137,19 +140,28 @@ class Plugin(indigo.PluginBase):
 					jsonResponse = json.loads(vehicleJson)
 					self._addVehicleToCars( jsonResponse )
 				
-					self.debugLog( "getting ETA" )
-					ETA = self.getETA(localPropsCopy["vehicle"], jsonResponse['latest_location'])
-
-					self.debugLog( "getting location" )
-					location = self.getLocation(localPropsCopy["vehicle"], jsonResponse['latest_location'])
 				
-					if "ETA" in dev.states:
-						if dev.states["ETA"] != ETA:
-							dev.updateStateOnServer( 'ETA', value=ETA )
-	
-					if "location" in dev.states:
-						if dev.states["location"] != location:
-							dev.updateStateOnServer( 'location', value=location )
+					self.debugLog( "getting fuel level percent" )
+					fuelLevelPercent = jsonResponse['fuel_level_percent']
+
+					self.debugLog( "getting battery voltage" )
+					batteryVoltage = jsonResponse['battery_voltage']
+
+					self.debugLog( "getting active dtcs (MILs)" )
+					activeDtcs = jsonResponse['active_dtcs']
+					
+							
+					if "fuelLevelPercent" in dev.states:
+						if dev.states["fuelLevelPercent"] != fuelLevelPercent:
+							dev.updateStateOnServer( 'fuelLevelPercent', value=fuelLevelPercent )
+
+					if "batteryVoltage" in dev.states:
+						if dev.states["batteryVoltage"] != batteryVoltage:
+							dev.updateStateOnServer( 'batteryVoltage', value=batteryVoltage )
+
+					if "activeDtcs" in dev.states:
+						if dev.states["activeDtcs"] != activeDtcs:
+							dev.updateStateOnServer( 'activeDtcs', value=activeDtcs )
 					
 			except Exception, e:
 				indigo.server.log("FYI - Exception caught getting vehicle info: " + str(e))
@@ -407,7 +419,6 @@ class Plugin(indigo.PluginBase):
 			if devTriggered.states["location"] != location:
 				devTriggered.updateStateOnServer( 'location', value=location )
 
-
 		if "previousMilesFromHome" in devTriggered.states:
 			if devTriggered.states["previousMilesFromHome"] != self.car[self.vehicleId]['previousMilesFromHome']:
 				devTriggered.updateStateOnServer( 'previousMilesFromHome', value=self.car[self.vehicleId]['previousMilesFromHome'] )
@@ -588,6 +599,7 @@ class Plugin(indigo.PluginBase):
 		# doesn't broadcast changes back to the plugin somehow), then consider
 		# adding that to runConcurrentThread() above.
 		self.debugLog(u"deviceStartComm")
+		dev.stateListOrDisplayStateIdChanged()
 		self._refreshStatesFromAPI(dev, True)
 
 	def deviceStopComm(self, dev):
