@@ -143,25 +143,45 @@ class Plugin(indigo.PluginBase):
 				
 					self.debugLog( "getting fuel level percent" )
 					fuelLevelPercent = jsonResponse['fuel_level_percent']
+					if fuelLevelPercent is None:
+						fuelLevelPercent = ''
 
 					self.debugLog( "getting battery voltage" )
 					batteryVoltage = jsonResponse['battery_voltage']
+					if batteryVoltage is None:
+						batteryVoltage = ''
 
 					self.debugLog( "getting active dtcs (MILs)" )
 					activeDtcs = jsonResponse['active_dtcs']
+					if activeDtcs is None:
+						activeDtcs = ''
 					
-							
-					if "fuelLevelPercent" in dev.states:
-						if dev.states["fuelLevelPercent"] != fuelLevelPercent:
-							dev.updateStateOnServer( 'fuelLevelPercent', value=fuelLevelPercent )
+					if activeDtcs != '':
+						indigo.server.log("activeDtcs for %s: %s" % (dev.name, str(json.dumps(activeDtcs))) )
+					
+					try:
+						if "fuelLevelPercent" in dev.states:
+							if dev.states["fuelLevelPercent"] != fuelLevelPercent:
+								dev.updateStateOnServer( 'fuelLevelPercent', value=str(fuelLevelPercent) )
+					except Exception, e:
+						indigo.server.log("FYI - Exception caught setting fuelLevelPercent: " + str(e))
+						pass
 
-					if "batteryVoltage" in dev.states:
-						if dev.states["batteryVoltage"] != batteryVoltage:
-							dev.updateStateOnServer( 'batteryVoltage', value=batteryVoltage )
+					try:						
+						if "batteryVoltage" in dev.states:
+							if dev.states["batteryVoltage"] != batteryVoltage:
+								dev.updateStateOnServer( 'batteryVoltage', value=str(batteryVoltage) )
+					except Exception, e:
+						indigo.server.log("FYI - Exception caught setting batteryVoltage: " + str(e))
+						pass
 
-					if "activeDtcs" in dev.states:
-						if dev.states["activeDtcs"] != activeDtcs:
-							dev.updateStateOnServer( 'activeDtcs', value=activeDtcs )
+					try:
+						if "activeDtcs" in dev.states:
+							if dev.states["activeDtcs"] != str(json.dumps(activeDtcs)):
+								dev.updateStateOnServer( 'activeDtcs', value=str(json.dumps(activeDtcs)) )
+					except Exception, e:
+						indigo.server.log("FYI - Exception caught setting activeDtcs: " + str(e))
+						pass
 					
 			except Exception, e:
 				indigo.server.log("FYI - Exception caught getting vehicle info: " + str(e))
